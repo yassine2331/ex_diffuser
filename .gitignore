@@ -1,3 +1,32 @@
-envirement.yml
-notebook/MNIST/*
-notebook/path/*
+# Ignore data (downloaded datasets)
+data/
+notebooks/*/raw/
+notebooks/*/samples/
+notebooks/*/scheduler/
+notebooks/*/unet/
+#igonore ipynb files 
+*.ipynb
+
+# Ignore experiments outputs
+experiments/*/logs/
+
+# Ignore saved models
+outputs/
+*.safetensors
+*.pt
+*.bin
+*.ckpt
+
+# Ignore logs
+*.log
+*.out
+*.tfevents.*
+
+# Ignore temporary files and cache
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
+
+# Optional: Ignore environment files if you rebuild them elsewhere
+*.env
