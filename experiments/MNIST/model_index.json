@@ -1,5 +1,5 @@
 {
-  "_class_name": "DDPMPipeline",
+  "_class_name": "DDPMPipelineCBM",
   "_diffusers_version": "0.33.1",
   "scheduler": [
     "diffusers",
