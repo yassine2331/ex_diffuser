@@ -1,7 +1,6 @@
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
 from configs.diffusion_config import TrainingConfig
 from models.diffusion_model import create_diffusion_model
 from data.dataloader import get_dataloader

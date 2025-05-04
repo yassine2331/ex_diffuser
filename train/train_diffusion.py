@@ -6,7 +6,7 @@ from pathlib import Path
 import torch
 import os
 import torch.nn.functional as F
-from evaluate.evaluate_diffusino import evaluate
+from evaluate.evaluate_diffusion import evaluate
 
 
 
