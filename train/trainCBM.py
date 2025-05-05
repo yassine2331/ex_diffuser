@@ -11,9 +11,11 @@ import torch
 import os
 import torch.nn.functional as F
 from evaluate.evaluateCBM import evaluate
+from models.UNet2DWithCBM import DDPMPipelineCBM
 
 def train_loop(config, model, noise_scheduler, optimizer, train_dataloader, lr_scheduler):
     # Initialize accelerator and tensorboard logging
+
     accelerator = Accelerator(
         mixed_precision=config.mixed_precision,
         gradient_accumulation_steps=config.gradient_accumulation_steps,
@@ -99,7 +101,7 @@ def train_loop(config, model, noise_scheduler, optimizer, train_dataloader, lr_s
 
         # After each epoch you optionally sample some demo images with evaluate() and save the model
         if accelerator.is_main_process:
-            pipeline = DDPMPipeline(
+            pipeline = DDPMPipelineCBM(
                 unet=accelerator.unwrap_model(model),
                 scheduler=noise_scheduler
             )

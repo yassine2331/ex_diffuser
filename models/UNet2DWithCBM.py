@@ -1,12 +1,33 @@
-from diffusers import UNet2DModel
-from typing import Optional, Tuple, Union
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
+
+
+from diffusers import UNet2DModel , DDPMPipeline
+from typing import Optional, Tuple, Union, List
 from torch import nn 
-from diffusers.utils import BaseOutput
+from diffusers.utils import BaseOutput 
+from diffusers.utils.import_utils import is_torch_xla_available
+from diffusers.pipelines import ImagePipelineOutput
+from diffusers.utils.torch_utils import randn_tensor
+
 from dataclasses import dataclass 
 import torch
+import warnings
+
+
+if is_torch_xla_available():
+    import torch_xla.core.xla_model as xm
+
+    XLA_AVAILABLE = True
+else:
+    XLA_AVAILABLE = False
+
+
+
 
 @dataclass
-class UNet2DOutput(BaseOutput):
+class UNet2DCBMOutput(BaseOutput):
     """
     The output of [`UNet2DModel`].
 
@@ -16,6 +37,89 @@ class UNet2DOutput(BaseOutput):
     """
 
     sample: torch.Tensor
+    concept: torch.Tensor
+    
+        
+
+
+
+class DDPMPipelineCBM(DDPMPipeline):
+    def __init__(self, unet, scheduler):
+        super().__init__(unet, scheduler)
+
+    
+    
+    @torch.no_grad()
+    def __call__(
+        self,
+        batch_size: int = 1,
+        generator: Optional[Union[torch.Generator, List[torch.Generator]]] = None,     
+        num_inference_steps: int = 1000,
+        output_type: Optional[str] = "pil",
+        return_dict: bool = True,
+        **kwargs,
+    ) -> Union[ImagePipelineOutput, Tuple]:
+        r"""
+        Args:
+            batch_size (`int`, *optional*, defaults to 1):
+                The number of images to generate.
+            generator (`torch.Generator`, *optional*):
+                A [torch generator](https://pytorch.org/docs/stable/generated/torch.Generator.html) to make generation
+                deterministic.
+            output_type (`str`, *optional*, defaults to `"pil"`):
+                The output format of the generate image. Choose between
+                [PIL](https://pillow.readthedocs.io/en/stable/): `PIL.Image.Image` or `nd.array`.
+            return_dict (`bool`, *optional*, defaults to `True`):
+                Whether or not to return a [`~pipeline_utils.ImagePipelineOutput`] instead of a plain tuple.
+
+        Returns:
+            [`~pipeline_utils.ImagePipelineOutput`] or `tuple`: [`~pipelines.utils.ImagePipelineOutput`] if
+            `return_dict` is True, otherwise a `tuple. When returning a tuple, the first element is a list with the
+            generated images.
+        """
+        
+        if isinstance(self.unet.config.sample_size, int):
+                    image_shape = (
+                        batch_size,
+                        self.unet.config.in_channels,
+                        self.unet.config.sample_size,
+                        self.unet.config.sample_size,
+                    )
+        else:
+            image_shape = (batch_size, self.unet.config.in_channels, *self.unet.config.sample_size)
+
+        if self.device.type == "mps":
+            # randn does not work reproducibly on mps
+            image = randn_tensor(image_shape, generator=generator, dtype=self.unet.dtype)
+            image = image.to(self.device)
+        else:
+            image = randn_tensor(image_shape, generator=generator, device=self.device, dtype=self.unet.dtype)
+
+        # set step values
+        self.scheduler.set_timesteps(num_inference_steps)
+
+        for t in self.progress_bar(self.scheduler.timesteps):
+            
+            # 1. predict noise model_output
+            output = self.unet(image, t,return_dict=False)
+            model_output = output[0]
+            # 2. compute previous image: x_t -> t_t-1
+            image = self.scheduler.step(model_output, t, image, generator=generator).prev_sample
+
+
+            if XLA_AVAILABLE:
+                xm.mark_step()
+        concept = output[1]
+
+        image = (image / 2 + 0.5).clamp(0, 1)
+        image = image.cpu().permute(0, 2, 3, 1).numpy()
+        if output_type == "pil":
+            image = self.numpy_to_pil(image)
+
+        if not return_dict:
+            return (image,concept)
+
+        return ImagePipelineOutput(images=image)
 
 
 
@@ -47,7 +151,7 @@ class UNet2DWithCBM(UNet2DModel):
         timestep: Union[torch.Tensor, float, int],
         class_labels: Optional[torch.Tensor] = None,
         return_dict: bool = True,
-    ) -> Union[UNet2DOutput, Tuple]:
+    ) -> Union[UNet2DCBMOutput, Tuple]:
         r"""
         The [`UNet2DModel`] forward method.
 
@@ -164,4 +268,4 @@ class UNet2DWithCBM(UNet2DModel):
         if not return_dict:
             return (sample,concepts)
 
-        return UNet2DOutput(sample=sample)
+        return UNet2DCBMOutput(sample=sample,concept=concepts)
