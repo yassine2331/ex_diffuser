@@ -6,7 +6,7 @@
     "DDPMScheduler"
   ],
   "unet": [
-    "models.UNet2DWithCBM",
+    "models.UNet2DWithCBM_new",
     "UNet2DWithCBM"
   ]
 }
