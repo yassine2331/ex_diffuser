@@ -5,7 +5,7 @@ class TrainingConfig:
     root_dir = ".."
     train_batch_size = 64
     eval_batch_size = 16
-    num_epochs = 1
+    num_epochs = 5
     gradient_accumulation_steps = 1
     learning_rate = 1e-4
     lr_warmup_steps = 500
@@ -21,7 +21,8 @@ class TrainingConfig:
     concept= True 
     #model
     image_size = 32
-    
+    context_dim = 8 # dimention of centext in the CBM paper 
+    skip_context = False
     num_concepts = 10
     in_channels=1
     out_channels=1

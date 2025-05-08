@@ -139,7 +139,10 @@ class UNet2DWithCBM(UNet2DModel):
         self.cbm = CBM(self.input_size, config.num_concepts )
 
         self.linear =  nn.Linear( config.num_concepts, self.input_size )
-        self.activation_concept = nn.ReLU()
+        self.linear_2 =  nn.Linear( self.input_size, self.input_size )
+        
+        self.activation_concept = nn.SiLU()
+        self.activation_2 = nn.SiLU()
         #self.m = nn.Softmax(dim=1)
 
         #self.cbm_model = cbm_model  # your concept bottleneck model
@@ -234,13 +237,16 @@ class UNet2DWithCBM(UNet2DModel):
         
         post_concepts = self.linear(concepts)
         post_concepts = self.activation_concept(post_concepts)
+        post_concepts = self.linear_2(post_concepts)
+        post_concepts = self.activation_2(post_concepts)
         post_concepts = torch.reshape(post_concepts,sample.shape) 
         
+        
+
+        #sample = torch.add(sample,post_concepts)
+        sample = post_concepts
 
 
-
-
-        sample = torch.add(sample,post_concepts)
         # 5. up
         skip_sample = None
         for upsample_block in self.up_blocks:

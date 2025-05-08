@@ -13,7 +13,7 @@ import torch.nn.functional as F
 from evaluate.evaluateCBM import evaluate
 from models.UNet2DWithCBM import DDPMPipelineCBM
 
-def train_loop(config, model, noise_scheduler, optimizer, train_dataloader, lr_scheduler):
+def train_loop(config, model, noise_scheduler, optimizer, train_dataloader, lr_scheduler,model_name=""):
     # Initialize accelerator and tensorboard logging
 
     accelerator = Accelerator(
@@ -79,7 +79,7 @@ def train_loop(config, model, noise_scheduler, optimizer, train_dataloader, lr_s
                     concept_loss = F.binary_cross_entropy(concept_pred, concepts.float())
                 
                 # Combined loss
-                total_loss = diffusion_loss +  0.1*concept_loss
+                total_loss = diffusion_loss +  0.4*concept_loss
                 
                 accelerator.backward(total_loss)
                 accelerator.clip_grad_norm_(model.parameters(), 1.0)
@@ -122,4 +122,4 @@ def train_loop(config, model, noise_scheduler, optimizer, train_dataloader, lr_s
                     torch.save({
                         'model_state_dict': accelerator.unwrap_model(model).state_dict(),
                         'optimizer_state_dict': optimizer.state_dict(),
-                    }, os.path.join(config.output_dir, f"concept_model_epoch_{epoch}.pt"))
+                    }, os.path.join(config.output_dir, f"concept_model_{model_name}_{epoch}.pt"))
