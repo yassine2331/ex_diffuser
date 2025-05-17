@@ -138,9 +138,9 @@ class UNet2DWithCBM(UNet2DModel):
         
         #self.cbm = CBM(self.input_size, config.num_concepts )
 
-        self.cbm = CBM(self.input_size, config.num_concepts, context_dim = config.context_dim)
+        self.cbm = CBM(self.input_size, config.num_concepts, context_dim = config.context_dim,skip_concept = config.skip_concept)
         
-        if config.skip_context:
+        if config.skip_concept:
             self.cbm_output_dim = config.context_dim*(config.num_concepts + 1)
         else: 
             self.cbm_output_dim = config.context_dim*config.num_concepts 
@@ -158,6 +158,7 @@ class UNet2DWithCBM(UNet2DModel):
         
         timestep: Union[torch.Tensor, float, int],
         class_labels: Optional[torch.Tensor] = None,
+        interventions: Optional[torch.Tensor] = None,
         return_dict: bool = True,
     ) -> Union[UNet2DCBMOutput, Tuple]:
         r"""
@@ -238,7 +239,7 @@ class UNet2DWithCBM(UNet2DModel):
 
         
 
-        concept_embedding ,concepts  = self.cbm(pre_concepts)
+        concept_embedding ,concepts  = self.cbm(pre_concepts,interventions)
         
         post_concepts = self.linear(concept_embedding)
         post_concepts = self.activation(post_concepts)

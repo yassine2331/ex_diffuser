@@ -29,7 +29,7 @@ class Context_newtork(nn.Module):
         context_pos = self.fc_pos(x)
         context_pos = self.act_pos(context_pos)
         
-        context_neg = self.fc_pos(x)
+        context_neg = self.fc_neg(x)
         context_neg = self.act_neg(context_neg)
 
 
@@ -53,75 +53,97 @@ class Probability_network(nn.Module):
         
 
 class Context(nn.Module):
-    def __init__(self, input_dim , context_dim, intervention = None):
+    def __init__(self, input_dim , context_dim):
         super().__init__()
-        self.intervention = intervention
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
         self.context_newtork = Context_newtork(input_dim=input_dim , hidden_dim=context_dim)
         self.Probability_network = Probability_network(hidden_dim=context_dim)
         self.context_dim = context_dim
+        #self.layer_norm_pos = nn.LayerNorm(self.context_dim)
+        #self.layer_norm_neg = nn.LayerNorm(self.context_dim)
+        
 
-    def forward(self,x):
+
+    def forward(self,x,intervention = None):
         
         context_pos, context_neg = self.context_newtork(x)
         prob_pos, prob_neg = self.Probability_network(context_pos, context_neg)
-       
-        if self.intervention == None:
+
+        #context_pos = self.layer_norm_pos(context_pos)
+        #context_neg = self.layer_norm_neg(context_neg)
+        
+
+        if intervention == None:
+            
             #context_pos = torch.mul(prob_pos,context_pos )
             #context_neg = torch.mul( prob_neg,context_neg )
             context_pos = prob_pos.view(prob_pos.shape[0],1) * context_pos
             context_neg = prob_neg.view(prob_neg.shape[0],1) * context_neg
             
         else:
-            context_pos = self.intevention.view(self.intevention.shape[0],1) * context_pos
-            context_neg = (1-self.intervention.view(self.intevention.shape[0],1)) * context_neg
+            
+            context_pos = intervention.view(intervention.shape[0],1) * context_pos
+            context_neg = (1-intervention.view(intervention.shape[0],1)) * context_neg
+            
+
+        
+
 
         context = context_pos + context_neg
+       
+
         return (context , prob_pos) 
+   
+
 
 
 class CBM_new(nn.Module):
-    def __init__(self,input_dim,num_concepts, context_dim= 5,skip_context = False, intervention=None ):
+    def __init__(self,input_dim,num_concepts, context_dim= 5,skip_concept = False ):
         super().__init__()
-        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         self.contexts = nn.ModuleList()
         self.num_concepts = num_concepts
         self.context_dim = context_dim # tempo
-        self.skip_context = skip_context
+        self.skip_concept = skip_concept
+         
         
         
-        if intervention is None:
-            for i in range(self.num_concepts):
-                self.contexts.append(Context(input_dim,self.context_dim,intervention))
-        else:
-            for i in range(self.num_concepts):
-                self.contexts.append(Context(input_dim,self.context_dim,intervention[:,i]))
-
-
-
-
         
-
-        if skip_context:
+        for i in range(self.num_concepts):
+            self.contexts.append(Context(input_dim,self.context_dim))
+        
+        
+        if self.skip_concept:
             self.skip_context = nn.Linear(input_dim, self.context_dim)
             self.act_skip = nn.SiLU()
         
-    def forward(self, x):
+    def forward(self, x, interventions=None):
         concepts = []
         probs = []
-        for i in range(self.num_concepts):
-            c = self.contexts[i](x)[0]
-            p = self.contexts[i](x)[1]
-            
-            concepts.append(c)
-            probs.append(p)
-        if self.skip_context:
+        # interventions are passed throught the forward method of the model
+        # you have to take into a ccount the battch size
+        # interventions -> (batch,interventions across all concepts)
+        if interventions == None:
+            for i in range(self.num_concepts):
+                c, p  = self.contexts[i](x,interventions)
+                concepts.append(c)
+                probs.append(p)
+        else:
+
+            for i in range(self.num_concepts):
+                c, p  = self.contexts[i](x,interventions[:,i])
+                concepts.append(c)
+                probs.append(p)
+
+        if self.skip_concept:
             skip_c = self.skip_context(x)
             skip_act = self.act_skip(skip_c)
             concepts.append(skip_act)
+
         h = torch.cat(concepts,dim=1)
         probs = torch.stack(probs, dim=1)
+      
+
         return h , probs
-
-
-
-        
+    

@@ -50,7 +50,7 @@ def train_loop(config, model, noise_scheduler, optimizer, train_dataloader, lr_s
             
             clean_images = batch["images"]
             concepts = batch.get("concepts", None)  # Now getting concept vectors
-           
+            
             # Sample noise to add to the images
             noise = torch.randn(clean_images.shape, device=clean_images.device)
             bs = clean_images.shape[0]
@@ -66,7 +66,7 @@ def train_loop(config, model, noise_scheduler, optimizer, train_dataloader, lr_s
 
             with accelerator.accumulate(model):
                 # Forward pass with concept return
-                outputs = model(noisy_images, timesteps, return_dict=False)
+                outputs = model(noisy_images, timesteps,interventions = concepts, return_dict=False)
                 noise_pred = outputs[0]
                 concept_pred = outputs[1]
                 

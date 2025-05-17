@@ -22,7 +22,7 @@ class TrainingConfig:
     #model
     image_size = 32
     context_dim = 8 # dimention of centext in the CBM paper 
-    skip_context = False
+    skip_concept = False
     num_concepts = 10
     in_channels=1
     out_channels=1
