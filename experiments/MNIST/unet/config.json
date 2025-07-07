@@ -14,6 +14,7 @@
   ],
   "center_input_sample": false,
   "class_embed_type": null,
+  "cross_attention_dim": 256,
   "down_block_types": [
     "DownBlock2D",
     "DownBlock2D",
@@ -32,6 +33,7 @@
   "mid_block_type": "UNetMidBlock2D",
   "norm_eps": 1e-05,
   "norm_num_groups": 32,
+  "num_attention_heads": 1,
   "num_class_embeds": null,
   "num_train_timesteps": null,
   "out_channels": 1,
@@ -41,7 +43,7 @@
   "time_embedding_type": "positional",
   "up_block_types": [
     "UpBlock2D",
-    "AttnUpBlock2D",
+    "CrossAttnUpBlock2D",
     "UpBlock2D",
     "UpBlock2D",
     "UpBlock2D"
