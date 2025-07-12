@@ -69,3 +69,32 @@ def get_dataloader(config, concept=False):
         dataset = ImageOnlyMNIST(data, preprocess)
 
     return DataLoader(dataset, batch_size=config.train_batch_size, shuffle=True)
+
+def get_dataloader_test(config, concept=False):
+    data_dir = os.path.join(config.root_dir, "data")
+    os.makedirs(data_dir, exist_ok=True)
+
+    # Load MNIST dataset (train split)
+    data = torchvision.datasets.MNIST(root=data_dir, train=False, download=True)
+
+    # Define transform pipeline
+    preprocess = transforms.Compose([
+        transforms.Resize((config.image_size, config.image_size)),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5], [0.5]),
+    ])
+
+    if config.concept:
+        
+
+        dataset = ConceptMNIST(data, preprocess, num_concepts=config.num_concepts)
+
+    else:
+        
+        dataset = ImageOnlyMNIST(data, preprocess)
+
+    return DataLoader(dataset, batch_size=config.train_batch_size, shuffle=True)
+
+if __name__ == "__main__":
+    data = torchvision.datasets.MNIST(root="MNIST", train=True, download=True)
+    print(data)

@@ -132,7 +132,9 @@ class UNet2DWithCBM(UNet2DModel):
             layers_per_block= config.layers_per_block,
             block_out_channels = config.block_out_channels,
             down_block_types = config.down_block_types,
-            up_block_types = config.up_block_types
+            up_block_types = config.up_block_types,
+            cross_attention_dim = config.cross_attention_dim,
+            num_attention_heads=config.num_attention_heads
             )
         self.input_size = int(((config.image_size /( 2**(len(config.block_out_channels)-1)) )**2) * config.block_out_channels[-1])
         
@@ -159,6 +161,7 @@ class UNet2DWithCBM(UNet2DModel):
         timestep: Union[torch.Tensor, float, int],
         class_labels: Optional[torch.Tensor] = None,
         interventions: Optional[torch.Tensor] = None,
+        encoder_hidden_states:Optional[torch.Tensor] = None,
         return_dict: bool = True,
     ) -> Union[UNet2DCBMOutput, Tuple]:
         r"""
@@ -223,6 +226,8 @@ class UNet2DWithCBM(UNet2DModel):
                 sample, res_samples, skip_sample = downsample_block(
                     hidden_states=sample, temb=emb, skip_sample=skip_sample
                 )
+            elif hasattr(downsample_block,"has_cross_attention"):
+                sample, res_samples = downsample_block(hidden_states=sample,encoder_hidden_states=encoder_hidden_states, temb=emb)
             else:
                 sample, res_samples = downsample_block(hidden_states=sample, temb=emb)
                 

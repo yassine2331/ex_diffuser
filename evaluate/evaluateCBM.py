@@ -22,6 +22,7 @@ def make_image_grid(images, rows, cols):
 def evaluate(config, epoch, pipeline, full_model=None):
     if full_model is not None:
         full_model.eval()
+        
     
     with torch.no_grad():
         generator = torch.Generator(device='cuda').manual_seed(config.seed)

@@ -4,6 +4,7 @@ notebooks/*/raw/
 notebooks/*/samples/
 notebooks/*/scheduler/
 notebooks/*/unet/
+notebooks/generated_gif_output/intervention_diffusion.gif
 #igonore ipynb files 
 *.ipynb
 
@@ -29,6 +30,8 @@ __pycache__/
 *.pyc
 .DS_Store
 .ipynb_checkpoints/
+ 
 
 # Optional: Ignore environment files if you rebuild them elsewhere
 *.env
+notebooks/generated_gif_output/*.gif

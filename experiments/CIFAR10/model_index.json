@@ -1,0 +1,12 @@
+{
+  "_class_name": "DDPMPipelineCBM",
+  "_diffusers_version": "0.33.1",
+  "scheduler": [
+    "diffusers",
+    "DDPMScheduler"
+  ],
+  "unet": [
+    "models.UNet2DWithCBM_new",
+    "UNet2DWithCBM"
+  ]
+}
