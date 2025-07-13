@@ -80,17 +80,17 @@ def compute_fid_score(pipeline, config):
     prepare_real_images(path=real_images_path, num_images=num_images)
     
     # next, we generate images from your model.
-    generate_fake_images(
+    """generate_fake_images(
         pipeline, 
         path=fake_images_path, 
         num_images=num_images,
         batch_size=batch_size,
         device=device
-    )
+    )"""
     
     # finally, we compute the fid score.
     print("computing fid score...")
-    score = fid.compute_fid(real_images_path, fake_images_path)
+    score = fid.compute_fid(real_images_path, fake_images_path,dataset_res=299)
     print(f"fid score: {score}")
     return score
 
