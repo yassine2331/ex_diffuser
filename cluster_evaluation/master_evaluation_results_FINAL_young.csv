@@ -1,0 +1,9 @@
+Task,Dir,Model,Flip (Ext),Flip (Int),sFID,Face ID %,Face Cosine,L1,L2,L1.5
+Young,0 -> 1,MyModel_CBM_final_2,0.7917,0.1317,10.64,0,0,0.0177,0.0355,0.0264
+Young,0 -> 1,Baseline_final_2,0.9233,0.1611,10.26,0,0,0.0192,0.0306,0.0247
+Young,0 -> 1,MyModel_CBM_final,0.5117,0.02,10.03,0,0,0.0156,0.0311,0.0232
+Young,0 -> 1,Baseline_final,0.9852,0.3345,11.84,0,0,0.0218,0.036,0.0286
+Young,0 -> 1,MyModel_CBM_final_3,0.65,0.0736,10.86,0,0,0.0175,0.0353,0.0262
+Young,0 -> 1,Baseline_final_3,1.0,0.9095,35.65,0,0,0.0419,0.0712,0.0561
+Young,0 -> 1,MyModel_CBM_final_1,0.751,0.1296,16.43,0,0,0.0192,0.0392,0.029
+Young,0 -> 1,Baseline_final_1,0.7966,0.0579,13.86,0,0,0.0172,0.0265,0.0218

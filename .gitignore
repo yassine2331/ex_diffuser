@@ -30,7 +30,14 @@ __pycache__/
 *.pyc
 .DS_Store
 .ipynb_checkpoints/
- 
+
+# Ignore wandb
+
+experiments/wandb/ 
+
+# ignnore any png file 
+
+*.png
 
 # Optional: Ignore environment files if you rebuild them elsewhere
 *.env

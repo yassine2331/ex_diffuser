@@ -1,0 +1,3 @@
+Task,Dir,Model,Flip (Ext),Flip (Int),sFID,Face ID %,Face Cosine,L1,L2,L1.5
+Corrolation,0 -> 1,MyModel_CBM_final_5,0.0127,0.0417,14.98,0,0,0.0182,0.0423,0.0295
+Corrolation,0 -> 1,Baseline_final_2,0.7483,0.0033,9.67,0,0,0.0205,0.0347,0.0271

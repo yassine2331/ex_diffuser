@@ -1,0 +1,5 @@
+Task,Dir,Model,Flip (Ext),Flip (Int),sFID,Face ID %,Face Cosine,L1,L2,L1.5
+Smiling,0 -> 1,MyModel_CBM_final_5,0.9873,0.6002,11.63,0,0,0.0161,0.0402,0.0276
+Smiling,0 -> 1,MyModel_CBM_final_4,0.9809,0.5455,11.17,0,0,0.0157,0.0393,0.0269
+Smiling,0 -> 1,MyModel_CBM_final_3,0.9619,0.4559,11.11,0,0,0.0152,0.0378,0.0259
+Smiling,0 -> 1,MyModel_CBM_final_2,0.9005,0.3256,10.93,0,0,0.0142,0.0352,0.0242
