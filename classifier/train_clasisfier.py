@@ -9,7 +9,9 @@ import torchvision.transforms as transforms
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
-from configs.diffusion_config import TrainingConfig,AttentionConfig
+from configs.diffusion_config import TrainingConfig,AttentionConfig ,celebA
+
+
 
 from data.dataloader import get_dataloader,get_dataloader_test
 
@@ -35,12 +37,12 @@ transform = transforms.Compose([
 # Data Loaders
 #train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, pin_memory=True)
 #test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, pin_memory=True)
-config = AttentionConfig()
+config = celebA()
 train_loader = get_dataloader(config,concept=config.concept)
 test_loader = get_dataloader_test(config,concept=config.concept)
 
 # Initialize model, loss, and optimizer
-model = LeNet().to(device)
+model = DiffusersLatentClassifier(input_channels=16, num_classes=40).to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=LR)
 
